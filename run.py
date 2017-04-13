@@ -44,6 +44,8 @@ class App(Origin):
         res = requests.get(self.__urls["rank"], headers=self.headers, cookies=self.cookies, timeout=self.timeout)
         if res.status_code == 200:
             result = json.loads(res.text)
+            for x in result[:10]:
+                print(x)
         else:
             res.raise_for_status()
 
