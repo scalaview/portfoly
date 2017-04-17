@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.finance as mpf
 
 a = np.array([0, 0.5, 1, 1.5, 2.5])
 type(a)
@@ -177,5 +178,6 @@ plt.show()
 
 
 plt.hist(y[:, 0], label=['1st', '2nd'], bins=20)
+plt.hist(y, label=['1st', '2nd'], stacked=True, bins=20)
 # 统计频率的直方图
 
