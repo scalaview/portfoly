@@ -1678,3 +1678,112 @@ model = pd.ols(y=ydat, x=xdat)
 
 model
 model.beta
+
+def bsm_mcs_valuation(strike):
+  import numpy as np
+  S0=100; T=1.0; r=0.05; vola=0.2
+  M=50; I=20000
+  dt=T/M
+  rand = np.random.standard_normal((M+1, I))
+  S = np.zeros((M+1, I)); S[0]=S0
+  for t in range(1, M+1):
+    S[t]=S[t-1] * np.exp((r - 0.5 * vola ** 2) * dt + vola * np.sqrt(dt) * rand[t])
+  value = (np.exp(-r * T) * np.sum(np.maximum(S[-1] - strike, 0)) / I)
+  return value
+
+def seq_value(n):
+  strikes = np.linspace(80, 120, n)
+  option_values = []
+  for strike in strikes:
+    option_values.append(bsm_mcs_valuation(strike))
+  return strikes, option_values
+
+
+# conda install -c anaconda ipyparallel
+# ipcluster start -n 4
+from ipyparallel import Client
+c = Client(profile='default')
+view = c.load_balanced_view()
+
+def par_value(n):
+  import numpy as np
+  strikes = np.linspace(80, 120, n)
+  option_values = []
+  for strike in strikes:
+    value = view.apply_async(bsm_mcs_valuation, strike)
+    option_values.append(value)
+  c.wait(option_values)
+  return strikes, option_values
+
+strikes, option_values_obj = par_value(100)
+
+'''
+strikes
+array([  80.        ,   80.4040404 ,   80.80808081,   81.21212121,
+         81.61616162,   82.02020202,   82.42424242,   82.82828283,
+         83.23232323,   83.63636364,   84.04040404,   84.44444444,
+         84.84848485,   85.25252525,   85.65656566,   86.06060606,
+         86.46464646,   86.86868687,   87.27272727,   87.67676768,
+         88.08080808,   88.48484848,   88.88888889,   89.29292929,
+         89.6969697 ,   90.1010101 ,   90.50505051,   90.90909091,
+         91.31313131,   91.71717172,   92.12121212,   92.52525253,
+         92.92929293,   93.33333333,   93.73737374,   94.14141414,
+         94.54545455,   94.94949495,   95.35353535,   95.75757576,
+         96.16161616,   96.56565657,   96.96969697,   97.37373737,
+         97.77777778,   98.18181818,   98.58585859,   98.98989899,
+         99.39393939,   99.7979798 ,  100.2020202 ,  100.60606061,
+        101.01010101,  101.41414141,  101.81818182,  102.22222222,
+        102.62626263,  103.03030303,  103.43434343,  103.83838384,
+        104.24242424,  104.64646465,  105.05050505,  105.45454545,
+        105.85858586,  106.26262626,  106.66666667,  107.07070707,
+        107.47474747,  107.87878788,  108.28282828,  108.68686869,
+        109.09090909,  109.49494949,  109.8989899 ,  110.3030303 ,
+        110.70707071,  111.11111111,  111.51515152,  111.91919192,
+        112.32323232,  112.72727273,  113.13131313,  113.53535354,
+        113.93939394,  114.34343434,  114.74747475,  115.15151515,
+        115.55555556,  115.95959596,  116.36363636,  116.76767677,
+        117.17171717,  117.57575758,  117.97979798,  118.38383838,
+        118.78787879,  119.19191919,  119.5959596 ,  120.        ])
+>>> option_values_obj
+[<AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>, <AsyncResult: bsm_mcs_valuation:finished>]
+'''
+
+option_values_par = []
+for res in option_values_obj:
+  option_values_par.append(res.r)
+plt.figure(figsize=(8, 4))
+plt.plot(strikes, option_values_par, 'r')
+plt.grid(True)
+plt.legend(loc=0)
+
+
+import multiprocessing as mp
+import math
+def simulate_geometric_brownian_motion(p):
+  import numpy as np
+  M, I = p
+  S0 = 100; r = 0.05; sigma = 0.2; T = 1.0
+  dt = T / M
+  paths = np.zeros((M + 1, I))
+  paths[0] = S0
+  for t in range(1, M + 1):
+    paths[t] = paths[t - 1] * np.exp((r - 0.5 * sigma ** 2) * dt + sigma * math.sqrt(dt) * np.random.standard_normal(I))
+  return paths
+
+paths = simulate_geometric_brownian_motion((5, 2))
+I = 10000
+M = 100
+t = 100
+
+from time import time
+times = []
+for w in range(1. 17):
+  t0 = time()
+  pool = mp.Pool(processes=w)
+  result = pool.map(simulate_geometric_brownian_motion, t * [(M, I), ])
+  times.append(time() - t0)
+
+plt.plot(range(1, 17), times)
+plt.plot(range(1, 17), times, 'ro')
+plt.grid(True)
+plt.show()
