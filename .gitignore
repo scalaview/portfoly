@@ -44,3 +44,4 @@ nosetests.xml
 venv
 log
 share/
+pyvenv.cfg
