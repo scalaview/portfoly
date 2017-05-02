@@ -2837,3 +2837,6 @@ fig.show()
 
 import statsmodels.api as sm
 # 一维或多维最小二乘回归
+model = sm.OLS(fm(*(x, y)), matrix).fit()
+model.rsquared
+model.params
