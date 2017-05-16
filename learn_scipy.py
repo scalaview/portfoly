@@ -34,3 +34,18 @@ ax.set_xticks((a, b))
 ax.set_xticklabels(('$a$', '$b$'))
 ax.set_yticks([f(a), f(b)])
 plt.show()
+
+
+>>> sci.fixed_quad(f, a, b) #固定高斯求积
+(24.366995967084602, None)
+>>> sci.quad(f, a, b)  #自适应求积
+(24.374754718086752, 2.706141390761058e-13)
+>>> sci.romberg(f, a, b)  #龙贝格积分
+24.374754718086713
+
+>>> xi = np.linspace(0.5, 9.5, 25)
+>>> sci.trapz(f(xi), xi)  # 梯形法则
+24.352733271544516
+>>> sci.simps(f(xi), xi)    #辛普森法则
+24.374964184550748
+
