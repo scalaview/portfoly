@@ -79,4 +79,68 @@ print_statistics(log_returns.flatten())
       kurtosis         0.00088
 '''
 
-plt.hist(log_returns.flatten())
+plt.hist(log_returns.flatten(), bins=70, normed=True)
+plt.grid(True)
+x = np.linspace(plt.axis()[0], plt.axis()[1])
+plt.plot(x, scs.norm.pdf(x, loc=r/M, scale=sigma/ np.sqrt(M)), 'r', lw=2.0)
+plt.legend()
+plt.show()
+sm.qqplot(log_returns.flatten()[::500], line='s')
+plt.grid(True)
+plt.show()
+
+
+def normality_tests(arr):
+  '''
+  Tests for normality distribution of given data set.
+  Parameters array: ndarray
+  object to generate on
+  '''
+  print("Skew of data set %14.3f" % scs.skew(arr))
+  print("Skew test p-value %14.3f" % scs.skewtest(arr)[1])
+  print("Kurt of data set %14.3f" % scs.kurtosis(arr))
+  print("Kurt test p-value %14.3f" % scs.kurtosistest(arr)[1])
+  print("Norm test p-value %14.3f" % scs.normaltest(arr)[1])
+
+normality_tests(log_returns.flatten())
+
+'''检查是否符合正态分布
+Skew of data set          0.001
+Skew test p-value          0.430
+Kurt of data set          0.001
+Kurt test p-value          0.541
+Norm test p-value          0.607
+'''
+
+f, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4))
+ax1.hist(paths[-1], bins=30)
+ax1.grid(True)
+
+ax2.hist(np.log(paths[-1]), bins=30)
+ax2.grid(True)
+ax1.show()
+ax2.show()
+print_statistics(paths[-1])
+'''
+   'statistic'           value
+..............................
+          size    250000.00000
+           min        42.74870
+           max       233.58435
+          mean       105.12645
+           std        21.23174
+          skew         0.61116
+      kurtosis         0.65182
+'''
+print_statistics(np.log(paths[-1]))
+'''
+   'statistic'           value
+..............................
+          size    250000.00000
+           min         3.75534
+           max         5.45354
+          mean         4.63517
+           std         0.19998
+          skew        -0.00092
+      kurtosis        -0.00327
+'''
