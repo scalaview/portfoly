@@ -118,8 +118,6 @@ ax1.grid(True)
 
 ax2.hist(np.log(paths[-1]), bins=30)
 ax2.grid(True)
-ax1.show()
-ax2.show()
 print_statistics(paths[-1])
 '''
    'statistic'           value
@@ -144,3 +142,17 @@ print_statistics(np.log(paths[-1]))
           skew        -0.00092
       kurtosis        -0.00327
 '''
+normality_tests(np.log(paths[-1]))
+'''
+Skew of data set         -0.001
+Skew test p-value          0.851
+Kurt of data set         -0.003
+Kurt test p-value          0.744
+Norm test p-value          0.931
+'''
+log_data = np.log(paths[-1])
+plt.hist(log_data, bins=70, normed=True)
+plt.grid(True)
+x = np.linspace(plt.axis()[0], plt.axis()[1])
+plt.plot(x, scs.norm.pdf(x, log_data.mean(), log_data.std()), 'r', lw=2.0)
+plt.legend()
