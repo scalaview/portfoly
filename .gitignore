@@ -45,3 +45,5 @@ venv
 log
 share/
 pyvenv.cfg
+.DS_Store
+img/
